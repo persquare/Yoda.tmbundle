@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
+	<key>command</key>
+	<string>#!/usr/bin/env python
+
+import os
+import sys
+import re
+
+env = os.environ
+
+envvars = ['TM_BUNDLE_SUPPORT', 'TM_SUPPORT_PATH']
+sys.path[:0] = [os.environ[v]+b'/lib' for v in envvars if os.environ[v] not in sys.path]
+
+import yoda
+
+rs = env['TM_SCOPE']
+ls = env['TM_SCOPE_LEFT']
+line = env['TM_CURRENT_LINE'].strip()
+mfca = "meta.function-call.arguments"
+pda = "punctuation.definition.arguments"
+
+# Need to examine scope more closely to determine if
+# caret is between ( and ) in otherwise empty surrounding
+if mfca in ls or mfca in rs or (pda in ls and pda in rs):
+    yoda.signature()
+else:
+    yoda.completion()
+
+    </string>
+	<key>input</key>
+	<string>document</string>
+	<key>inputFormat</key>
+	<string>text</string>
+	<key>keyEquivalent</key>
+	<string></string>
+	<key>name</key>
+	<string>Completion</string>
+	<key>outputCaret</key>
+	<string>afterOutput</string>
+	<key>outputFormat</key>
+	<string>text</string>
+	<key>outputLocation</key>
+	<string>atCaret</string>
+	<key>scope</key>
+	<string>source.python</string>
+	<key>uuid</key>
+	<string>84EC377B-B92D-44E9-A027-3DB72A5FBDAF</string>
+	<key>version</key>
+	<integer>2</integer>
+</dict>
+</plist>
