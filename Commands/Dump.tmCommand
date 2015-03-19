@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>command</key>
+	<string>#!/usr/bin/env python
+
+import os
+import sys
+import re
+
+envvars = ['TM_BUNDLE_SUPPORT', 'TM_SUPPORT_PATH']
+sys.path[:0] = [os.environ[v]+b'/lib' for v in envvars if os.environ[v] not in sys.path]
+
+# import dialog
+# print os.environ["DIALOG"]
+#
+# options = [('a', {'foo':'a'}), ('b', {'foo':'b'}), None, ('c', {'foo':'c'})]
+# print dialog.menu(options)
+
+env = os.environ
+
+# sys.path.insert(0, support_path + b'/jedi')
+import jedi
+jedi.settings.case_insensitive_completion = False
+jedi.settings.add_bracket_after_function = True
+
+
+def foo(x, y=0, **kwargs):
+    print x,y,kwargs
+
+def print_attributes(obj, attrs, indent=0):
+    for attr in attrs:
+      print "%s%s : %s" % (" "*indent, attr, getattr(obj, attr))
+
+def print_all_attributes(obj, indent=0):
+    print_attributes(obj, dir(obj), indent)
+
+
+def get_script():
+    """ Get the Jedi script object from the source passed on stdin, or none"""
+    source = ''.join(sys.stdin.readlines()) or None
+    script = None
+    try:
+        line = int(env['TM_LINE_NUMBER'])
+        # FIXME: Is col correct wrt tabs/soft tabs?
+        col = int(env['TM_COLUMN_NUMBER']) - 1
+        # encoding = tm_query.query('encoding')
+        path = env('TM_FILE_PATH') if not source else None
+        script = jedi.Script(source, line, col, path)
+    except: #(AttributeError, KeyError):
+        print line, col
+    return script
+
+cl = str(os.environ['TM_CURRENT_LINE'])
+cc = int(os.environ['TM_COLUMN_NUMBER'])
+print cl[:cc-1]+" "+cl[cc-1:]
+print " "*(cc - 1)+"^"
+
+std_attrs = ['type', 'name','full_name','module_name','module_path','line','column','description','is_keyword']
+# 'complete', 'params', 'name_with_symbols' not always present
+# Deprecated: 'start_pos',
+
+print "** Auto completion **"
+print
+
+s = get_script()
+cs = s.completions() # Returns list of Completion(BaseDefinition) objects
+print "== Completions =="
+if not cs:
+    print "N/A"
+else:
+    for c in cs[:5]:
+        print type(c)
+        print_attributes(c, std_attrs+['name_with_symbols', 'complete'], indent=4)
+
+    if len(cs)&gt;5:
+        print "..."
+print
+ss = s.call_signatures() # returns list of CallSignature(Definition)
+print "== Call Signatures =="
+if not ss:
+    print "N/A"
+else:
+    for u in ss[:5]:
+        print type(u)
+        # print_all_attributes(u, indent=4)
+        print 'u.index :', u.index
+        for p in u.params:
+            print type(p)
+            print_attributes(p, std_attrs, indent=4)
+    if len(ss)&gt;5:
+        print "..."
+print
+
+print "** Navigation **"
+
+us = s.usages() # returns list of Definition(BaseDefinition) objects
+print "== Usages =="
+if not us:
+    print "N/A"
+else:
+    for u in us[:5]:
+        print type(u)
+        print_attributes(u, std_attrs, indent=4)
+        print "  + is_definition :", u.is_definition()
+    if len(us)&gt;5:
+        print "..."
+print
+ss = s.goto_definitions() # returns list of Definition(BaseDefinition) objects
+print "== Goto Definitions =="
+if not ss:
+    print "N/A"
+else:
+    for u in ss[:5]:
+        print type(u)
+        print_attributes(u, std_attrs, indent=4)
+        print "  + is_definition :", u.is_definition()
+        print "  + in_builtin_module :", u.in_builtin_module()
+    if len(ss)&gt;5:
+        print "..."
+
+print
+ss = s.goto_assignments() # returns list of Definition(BaseDefinition) objects
+print "== Goto Assignments =="
+if not ss:
+    print "N/A"
+else:
+    for u in ss[:5]:
+        print type(u)
+        print_attributes(u, std_attrs, indent=4)
+        print "  + is_definition :", u.is_definition()
+        print "  + in_builtin_module :", u.in_builtin_module()
+    if len(ss)&gt;5:
+        print "..."
+
+</string>
+	<key>input</key>
+	<string>document</string>
+	<key>keyEquivalent</key>
+	<string>@0</string>
+	<key>name</key>
+	<string>Dump</string>
+	<key>outputLocation</key>
+	<string>newWindow</string>
+	<key>scope</key>
+	<string>source.python</string>
+	<key>uuid</key>
+	<string>0822A89C-7F76-4B59-8514-3A84788BFA9F</string>
+</dict>
+</plist>
