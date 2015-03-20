@@ -2,6 +2,7 @@
 # <https://github.com/lawrenceakka/python-jedi.tmbundle>
 import os
 import sys
+import glob
 import subprocess
 
 env = os.environ
@@ -28,13 +29,23 @@ def _call_dialog(command, *args):
     popen_args = [dialog, command]
     popen_args.extend(args)
     result = subprocess.check_output(popen_args)
-    return readPlistFromString(result) if result else {}
+    return result
 
-
-def register_images():
-    img = {'green':'/Users/eperspe/green.png'}
-    _call_dialog('images', '--register', writePlistToString(img))
-
+def register_images(imgdir):
+    imglist = glob.glob(imgdir+'/*.png')
+    imgnames = [os.path.basename(img).rsplit('.', 1) for img in imglist]
+    for (name, img) in zip(imgnames, imglist):
+        _call_dialog('images', '--register', writePlistToString({name:img}))
+    return imgnames
+    
+def present_popup(suggestions, typed='', extra_word_chars='_', return_choice=False):
+    retval = _call_dialog('popup', 
+                          '--suggestions', writePlistToString(suggestions),
+                          '--alreadyTyped', typed,
+                          '--additionalWordCharacters', '_',
+                          '--returnChoice' if return_choice else '')
+    return readPlistFromString(retval) if retval else {}
+    
 def get_script():
     """ Get the Jedi script object from the source passed on stdin, or none"""
     source = ''.join(sys.stdin.readlines()) or None
@@ -59,15 +70,10 @@ def completion():
         return
     # Prepare data for popup
     icons = {}
-    register_images()
+    # register_images()
     typed = env.get('TM_CURRENT_WORD', '').lstrip('.')
     suggestions = [{'display':c.name, 'image':icons.get(c.name, 'green')} for c in completions]
-    return _call_dialog('popup', '--suggestions', writePlistToString(suggestions),
-                 '--alreadyTyped', typed,
-                 '--staticPrefix', '',
-                 '--additionalWordCharacters', '_',
-                 '--returnChoice', ''
-                 '--caseInsensitive', '')
+    return present_popup(suggestions, typed)
 
 def signature():
     script = get_script()
@@ -87,9 +93,4 @@ def signature():
         return
     # Prepare data for popup
     suggestions = [{'display':s} for s in signatures]
-    return _call_dialog('popup', '--suggestions', writePlistToString(suggestions),
-                 '--alreadyTyped', '',
-                 '--staticPrefix', '',
-                 '--additionalWordCharacters', '_',
-                 '--returnChoice', ''
-                 '--caseInsensitive', '')
+    return present_popup(suggestions)
