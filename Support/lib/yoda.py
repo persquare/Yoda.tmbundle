@@ -37,15 +37,24 @@ def register_images(imgdir):
     for (name, img) in zip(imgnames, imglist):
         _call_dialog('images', '--register', writePlistToString({name:img}))
     return imgnames
-    
+
 def present_popup(suggestions, typed='', extra_word_chars='_', return_choice=False):
-    retval = _call_dialog('popup', 
+    retval = _call_dialog('popup',
                           '--suggestions', writePlistToString(suggestions),
                           '--alreadyTyped', typed,
                           '--additionalWordCharacters', '_',
                           '--returnChoice' if return_choice else '')
     return readPlistFromString(retval) if retval else {}
-    
+
+def present_menu(menu_items):
+    selections = [{'title':item} for item in menu_items]
+    return _call_dialog('menu', '--items', writePlistToString(selections))
+
+
+def present_tooltip(text, is_html=False):
+    _call_dialog('tooltip', '--html' if is_html else '--text', text)
+
+
 def get_script():
     """ Get the Jedi script object from the source passed on stdin, or none"""
     source = ''.join(sys.stdin.readlines()) or None
@@ -75,6 +84,30 @@ def completion():
     suggestions = [{'display':c.name, 'image':icons.get(c.name, 'green')} for c in completions]
     return present_popup(suggestions, typed)
 
+
+def _prep_arg(arg, i):
+    return '${%d:%s}' % (i, arg.strip())
+
+def _prep_karg(karg, i):
+    param, default = karg.strip().split('=')
+    return '%s=${%d:%s}' % (param, i, default)
+
+
+def _prepare_arg_snippets(descriptions):
+    args = []
+    kargs = []
+    vargs = []
+    i = 0
+    for d in descriptions:
+        i = i + 1
+        if '*' in d:
+            vargs.append(_prep_arg(d, i))
+        elif '=' in d:
+            kargs.append(_prep_karg(d, i))
+        else:
+            args.append(_prep_arg(d, i))
+    return (args, kargs, vargs)
+
 def signature():
     script = get_script()
     completions = script.call_signatures()
@@ -82,15 +115,26 @@ def signature():
         return
 
     signatures = []
-    for c in completions:
-        names = [p.name for p in c.params]
-        display = ', '.join(names)
-        signatures.append(display)
-    if not signatures:
-        return
-    if len(signatures) == 1:
-        sys.stdout.write(signatures[0])
-        return
-    # Prepare data for popup
-    suggestions = [{'display':s} for s in signatures]
-    return present_popup(suggestions)
+    # Really don't know when we could get > 1 result here...
+    # Discard for now, and use headings for grouping if I find out it happens
+    c = completions[0]
+    descriptions = [p.description.rstrip(', ') for p in c.params]
+
+    display = ', '.join(descriptions[c.index:])
+    args, kargs, vargs = _prepare_arg_snippets(descriptions[c.index:])
+    snippet = ', '.join(args+kargs+vargs)
+    # present_tooltip(snippet)
+    present_menu([display])
+    sys.stdout.write(snippet)
+    sys.exit(204)
+
+
+    #     signatures.append(display)
+    # if not signatures:
+    #     return
+    # if len(signatures) == 1:
+    #     sys.stdout.write(signatures[0])
+    #     return
+    # # Prepare data for popup
+    # suggestions = [{'display':s} for s in signatures]
+    # return present_popup(suggestions)
