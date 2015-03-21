@@ -171,15 +171,26 @@ def _goto_description(description):
     # Actually goto selected location here...    
     present_tooltip("Jumping to %s:%s" % (file, description.line))
     
+
+def _usage_cmp(a, b):
+    order = cmp(a.module_name, b.module_name)
+    if order == 0:
+        order = cmp(a.line, b.line)    
+    return order
         
 def _process_usages(us):
-    us.sort(key=lambda x: x.module_name, reverse=True)
+    # Sort per file:line
+    us.sort(cmp=_usage_cmp)
+    # FIXME: Move definition to top? (OTOH that is handled by goto definition)
     options = {}
+    menu_items = []
     for u in us:
         file = env['TM_FILENAME'] if 'TM_FILENAME' in env else '---'
         key = "[%s:%s] %s" % (u.module_name or file, u.line, u.description)
         options[key] = u
-    return options
+        menu_items.append(key)
+    # Return menu_items to preserve ordering   
+    return (menu_items, options)
 
 
 def usage():
@@ -188,8 +199,8 @@ def usage():
     if not usages:
         return
         
-    options = _process_usages(usages)    
-    selection = present_menu(options.keys())
+    menu_items, options = _process_usages(usages)    
+    selection = present_menu(menu_items)
     if selection:
         key = selection['title']
         _goto_description(options[key])
