@@ -33,7 +33,7 @@ def _call_dialog(command, *args):
 
 def register_images(imgdir):
     imglist = glob.glob(imgdir+'/*.png')
-    imgnames = [os.path.basename(img).rsplit('.', 1) for img in imglist]
+    imgnames = [os.path.basename(img).rsplit('.', 1)[0] for img in imglist]
     for (name, img) in zip(imgnames, imglist):
         _call_dialog('images', '--register', writePlistToString({name:img}))
     return imgnames
@@ -78,10 +78,9 @@ def completion():
         sys.stdout.write(completions[0].complete)
         return
     # Prepare data for popup
-    icons = {}
-    # register_images()
+    icons = register_images(env['TM_BUNDLE_SUPPORT'] + b'/icons')
     typed = env.get('TM_CURRENT_WORD', '').lstrip('.')
-    suggestions = [{'display':c.name, 'image':icons.get(c.name, 'green')} for c in completions]
+    suggestions = [{'display':c.name, 'image':c.type if c.type in icons else 'none'} for c in completions]
     return present_popup(suggestions, typed)
 
 
