@@ -107,6 +107,7 @@ def _prepare_arg_snippets(descriptions):
             args.append(_prep_arg(d, i))
     return (args, kargs, vargs)
 
+
 def signature():
     script = get_script()
     completions = script.call_signatures()
@@ -157,3 +158,39 @@ def signature():
         sys.stdout.write(options[key])
         sys.exit(204)
 
+
+def _goto_description(description):
+    # description is instance of Definition()
+    if description.in_builtin_module():
+        present_tooltip("Can't jump to builtin")
+        return
+    file = description.module_path or env['TM_FILEPATH'] if 'TM_FILEPATH' in env else None
+    if not file:
+        present_tooltip("Unknown location")
+        return
+    # Actually goto selected location here...    
+    present_tooltip("Jumping to %s:%s" % (file, description.line))
+    
+        
+def _process_usages(us):
+    us.sort(key=lambda x: x.module_name, reverse=True)
+    options = {}
+    for u in us:
+        file = env['TM_FILENAME'] if 'TM_FILENAME' in env else '---'
+        key = "[%s:%s] %s" % (u.module_name or file, u.line, u.description)
+        options[key] = u
+    return options
+
+
+def usage():
+    script = get_script()
+    usages = script.usages()
+    if not usages:
+        return
+        
+    options = _process_usages(usages)    
+    selection = present_menu(options.keys())
+    if selection:
+        key = selection['title']
+        _goto_description(options[key])
+    
