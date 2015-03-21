@@ -37,7 +37,7 @@ else:
 	<key>inputFormat</key>
 	<string>text</string>
 	<key>keyEquivalent</key>
-	<string></string>
+	<string>@§</string>
 	<key>name</key>
 	<string>Completion</string>
 	<key>outputCaret</key>
