@@ -167,7 +167,7 @@ def signature():
 def _goto_description(description):
     # description is instance of Definition()
     if description.in_builtin_module():
-        present_tooltip("Can't jump to builtin")
+        present_tooltip("builtin: %s" % description.description)
         return
     file = description.module_path or env['TM_FILEPATH'] if 'TM_FILEPATH' in env else None
     if not file:
