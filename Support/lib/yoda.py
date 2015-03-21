@@ -55,6 +55,11 @@ def present_tooltip(text, is_html=False):
     _call_dialog('tooltip', '--html' if is_html else '--text', text)
 
 
+def open_in_editor(path, line=1, column=0):
+    # os.system("open txmt://open/?url=file:///%s&line=%d&column=%d" % (path, int(line), int(column)))
+    os.system("mate -l%d:%d %s" % (int(line), int(column), path))
+     
+
 def get_script():
     """ Get the Jedi script object from the source passed on stdin, or none"""
     source = ''.join(sys.stdin.readlines()) or None
@@ -169,8 +174,8 @@ def _goto_description(description):
         present_tooltip("Unknown location")
         return
     # Actually goto selected location here...    
-    present_tooltip("Jumping to %s:%s" % (file, description.line))
-    
+    # present_tooltip("Jumping to %s:%s" % (file, description.line))
+    open_in_editor(file, description.line, description.column)
 
 def _usage_cmp(a, b):
     order = cmp(a.module_name, b.module_name)
