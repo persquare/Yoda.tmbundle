@@ -48,8 +48,8 @@ def present_popup(suggestions, typed='', extra_word_chars='_', return_choice=Fal
 
 def present_menu(menu_items):
     selections = [{'title':item} for item in menu_items]
-    return _call_dialog('menu', '--items', writePlistToString(selections))
-
+    retval = _call_dialog('menu', '--items', writePlistToString(selections))
+    return readPlistFromString(retval) if retval else {}
 
 def present_tooltip(text, is_html=False):
     _call_dialog('tooltip', '--html' if is_html else '--text', text)
@@ -117,24 +117,44 @@ def signature():
     signatures = []
     # Really don't know when we could get > 1 result here...
     # Discard for now, and use headings for grouping if I find out it happens
+    if len(completions)>1: present_tooltip("Mutiple options\n"+str(completions))
+    
     c = completions[0]
     descriptions = [p.description.rstrip(', ') for p in c.params]
 
-    display = ', '.join(descriptions[c.index:])
-    args, kargs, vargs = _prepare_arg_snippets(descriptions[c.index:])
-    snippet = ', '.join(args+kargs+vargs)
-    # present_tooltip(snippet)
-    present_menu([display])
-    sys.stdout.write(snippet)
-    sys.exit(204)
+    # Truncate descriptions if we've already filled in some params
+    # FIXME: Only works properly for positional parameters
+    descriptions = descriptions[c.index:]
 
+    args, kargs, vargs = _prepare_arg_snippets(descriptions)
+    
+    # Present (up to) three options:
+    # 1) only positional arguments
+    # 2) positional and named arguments
+    # 3) all arguments
+    minimal = args
+    sensible = args + kargs
+    maximal = args + kargs + vargs
+    
+    minimal_key = ', '.join(descriptions[:len(minimal)])
+    sensible_key = ', '.join(descriptions[:len(sensible)])
+    maximal_key = ', '.join(descriptions[:len(maximal)])
 
-    #     signatures.append(display)
-    # if not signatures:
-    #     return
-    # if len(signatures) == 1:
-    #     sys.stdout.write(signatures[0])
-    #     return
-    # # Prepare data for popup
-    # suggestions = [{'display':s} for s in signatures]
-    # return present_popup(suggestions)
+    options = {}
+    if minimal_key: options[minimal_key] = ', '.join(minimal)
+    if sensible_key: options[sensible_key] = ', '.join(sensible)
+    if maximal_key: options[maximal_key] = ', '.join(maximal)
+    
+    if not options:
+        return
+    
+    if len(options) == 1:
+        sys.stdout.write(options.values[0])
+        sys.exit(204)
+    
+    selection = present_menu(options.keys())
+    if selection:
+        key = selection['title']
+        sys.stdout.write(options[key])
+        sys.exit(204)
+
