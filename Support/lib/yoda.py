@@ -209,4 +209,32 @@ def usage():
     if selection:
         key = selection['title']
         _goto_description(options[key])
+
+def definitions():
+    script = get_script()
+    definitions = script.goto_definitions()
+    if not definitions:
+        return
+    if len(definitions) == 1:
+        _goto_description(definitions[0])
+        return
+    menu_items, options = _process_usages(definitions)    
+    selection = present_menu(menu_items)
+    if selection:
+        key = selection['title']
+        _goto_description(options[key])
+
+def assignments():
+    script = get_script()
+    assignments = script.goto_assignments()
+    if not assignments:
+        return
+    if len(assignments) == 1:
+        _goto_description(assignments[0])
+        return
+    menu_items, options = _process_usages(assignments)    
+    selection = present_menu(menu_items)
+    if selection:
+        key = selection['title']
+        _goto_description(options[key])
     

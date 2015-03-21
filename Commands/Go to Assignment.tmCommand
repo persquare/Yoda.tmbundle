@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>command</key>
+	<string>#!/usr/bin/env python
+
+import os
+import sys
+
+envvars = ['TM_BUNDLE_SUPPORT', 'TM_SUPPORT_PATH']
+sys.path[:0] = [os.environ[v]+b'/lib' for v in envvars if os.environ[v] not in sys.path]
+
+import yoda
+
+yoda.assignments()</string>
+	<key>input</key>
+	<string>document</string>
+	<key>keyEquivalent</key>
+	<string>@7</string>
+	<key>name</key>
+	<string>Go to Assignment</string>
+	<key>outputLocation</key>
+	<string>discard</string>
+	<key>scope</key>
+	<string>source.python</string>
+	<key>uuid</key>
+	<string>7A4C58CE-7352-4547-BC78-7303CA8D14AF</string>
+</dict>
+</plist>
