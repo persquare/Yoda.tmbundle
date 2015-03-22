@@ -238,3 +238,17 @@ def assignments():
         key = selection['title']
         _goto_description(options[key])
     
+def quickdoc():
+    script = get_script()
+    if script is None:
+        return
+    try:
+        definitions = script.goto_definitions()
+    except jedi.NotFoundError:
+        present_tooltip('No definition found')
+        return
+        
+    if definitions:
+        definition = definitions[0]
+        present_tooltip(definition.docstring())
+        
