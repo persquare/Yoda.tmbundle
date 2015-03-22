@@ -154,7 +154,7 @@ def signature():
         return
     
     if len(options) == 1:
-        sys.stdout.write(options.values[0])
+        sys.stdout.write(options.values()[0])
         sys.exit(204)
     
     selection = present_menu(options.keys())
