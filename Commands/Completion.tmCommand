@@ -18,15 +18,21 @@ sys.path[:0] = [os.environ[v]+b'/lib' for v in envvars if os.environ[v] not in s
 
 import yoda
 
+# Thread carefully here...
+# If there is a selection, there will be no TM_SCOPE_LEFT, 
+# no TM_LINE_NUMBER, TM_COLUMN_NUMBER, or TM_CURRENT_LINE, 
+# but TM_SELECTED_TEXT and TM_SELECTION (with line and column) 
+active_selection = 'TM_SELECTED_TEXT' in env
 rs = env['TM_SCOPE']
-ls = env['TM_SCOPE_LEFT']
-line = env['TM_CURRENT_LINE'].strip()
+ls = rs if active_selection else env['TM_SCOPE_LEFT']
 mfca = "meta.function-call.arguments"
 pda = "punctuation.definition.arguments"
-
 # Need to examine scope more closely to determine if
 # caret is between ( and ) in otherwise empty surrounding
-if mfca in ls or mfca in rs or (pda in ls and pda in rs):
+in_empty_argument = pda in ls and pda in rs
+
+# If there is an active selection inside ( and ) we likely want completion
+if in_empty_argument:
     yoda.signature()
 else:
     yoda.completion()
