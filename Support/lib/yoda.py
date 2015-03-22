@@ -59,14 +59,26 @@ def open_in_editor(path, line=1, column=0):
     # os.system("open txmt://open/?url=file:///%s&line=%d&column=%d" % (path, int(line), int(column)))
     os.system("mate -l%d:%d %s" % (int(line), int(column), path))
      
+def _active_selection():
+    return 'TM_SELECTED_TEXT' in env
+
+
+def _get_line_column():
+    if _active_selection():
+        lc, _ = env['TM_SELECTION'].split('-', 1)
+        line, col = lc.split(':')
+    else:
+        line = env['TM_LINE_NUMBER']
+        col = env['TM_COLUMN_NUMBER']       
+    return (int(line), int(col)-1)
+
 
 def get_script():
     """ Get the Jedi script object from the source passed on stdin, or none"""
     source = ''.join(sys.stdin.readlines()) or None
     script = None
     try:
-        line = int(env['TM_LINE_NUMBER'])
-        col = int(env['TM_COLUMN_NUMBER']) - 1
+        line, col = _get_line_column()
         # encoding = tm_query.query('encoding')
         path = env('TM_FILE_PATH') if not source else None
         script = jedi.Script(source, line, col, path)
