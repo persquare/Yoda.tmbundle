@@ -2,8 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
 	<key>command</key>
 	<string>#!/usr/bin/env python
+# encoding: utf-8
 
 import os
 import sys
@@ -137,15 +140,25 @@ else:
 </string>
 	<key>input</key>
 	<string>document</string>
+	<key>inputFormat</key>
+	<string>text</string>
+	<key>isDisabled</key>
+	<true/>
 	<key>keyEquivalent</key>
 	<string>@0</string>
 	<key>name</key>
 	<string>Dump</string>
+	<key>outputCaret</key>
+	<string>afterOutput</string>
+	<key>outputFormat</key>
+	<string>text</string>
 	<key>outputLocation</key>
 	<string>newWindow</string>
 	<key>scope</key>
 	<string>source.python</string>
 	<key>uuid</key>
 	<string>0822A89C-7F76-4B59-8514-3A84788BFA9F</string>
+	<key>version</key>
+	<integer>2</integer>
 </dict>
 </plist>

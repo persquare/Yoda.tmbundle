@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
+	<key>command</key>
+	<string>#!/usr/bin/env python
+# encoding: utf-8
+
+"""Show help for the Yoda bundle."""
+
+import os
+import sys
+import subprocess
+import StringIO
+
+envvars = ['TM_BUNDLE_SUPPORT', 'TM_SUPPORT_PATH']
+sys.path[:0] = [os.environ[v]+'/lib' for v in envvars if os.environ[v] not in sys.path]
+
+import webpreview as wp
+import help_gen
+
+# Get the static part of the documentation
+try:
+    help_file = os.path.join(os.environ['TM_BUNDLE_SUPPORT'], 'help.markdown')
+    with open(help_file, 'r') as f:
+        help_text = f.read()
+except:
+    help_text = """
+# About Yoda
+Yoda builds on [Jedi][1] to provide better completion and navigation when working with Python code.
+[1]: http://jedi.jedidjah.ch/en/latest/index.html
+
+# Requirements
+* [Jedi][1] v0.9.0 or later
+* TextMate's shell supprt `mate`-command is installed, see TextMate -&gt; Preferences… -&gt; Terminal
+"""
+        
+
+# Get the auto-generated part of the documentation
+cmd_dir = os.path.join(os.environ['TM_BUNDLE_SUPPORT'], '../Commands')
+f = StringIO.StringIO()
+save_stdout = sys.stdout
+sys.stdout = f
+help_gen.generate_keyboard_shortcut_docs(cmd_dir)
+sys.stdout = save_stdout
+shortcut_docs = f.getvalue()
+f.close()
+     
+
+print wp.html_header(u'Yoda Bundle Help', 'Yoda')
+
+# Let markdown_to_html.rb do the heavy lifting
+md2help = os.path.join(os.environ['TM_SUPPORT_PATH'], 'lib/markdown_to_help.rb')     
+p = subprocess.Popen(md2help, stdin=subprocess.PIPE)
+p.stdin.write(u'# Quickstart (keyboard shortcuts)'.encode('utf-8'))
+p.stdin.write(shortcut_docs)
+p.stdin.write(help_text)
+p.stdin.close() # signal end of file
+ 
+print wp.html_footer()
+ 
+
+</string>
+	<key>input</key>
+	<string>selection</string>
+	<key>inputFormat</key>
+	<string>text</string>
+	<key>keyEquivalent</key>
+	<string>@h</string>
+	<key>name</key>
+	<string>Help</string>
+	<key>outputCaret</key>
+	<string>afterOutput</string>
+	<key>outputFormat</key>
+	<string>html</string>
+	<key>outputLocation</key>
+	<string>newWindow</string>
+	<key>scope</key>
+	<string>source.python</string>
+	<key>uuid</key>
+	<string>55030009-AF93-4F92-B76B-8A7E08939925</string>
+	<key>version</key>
+	<integer>2</integer>
+</dict>
+</plist>

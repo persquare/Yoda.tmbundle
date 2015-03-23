@@ -6,6 +6,14 @@
 	<string>nop</string>
 	<key>command</key>
 	<string>#!/usr/bin/env python
+# encoding: utf-8
+
+"""
+If completion is unambigous it will be inserted, otherwise
+presents a popup of alternatives; continue typing to filter alternatives.
+
+If used inside an empty function argument it will insert an argument template, use tab to advance selection.
+"""
 
 import os
 import sys
@@ -43,7 +51,7 @@ else:
 	<key>inputFormat</key>
 	<string>text</string>
 	<key>keyEquivalent</key>
-	<string>@§</string>
+	<string>~ </string>
 	<key>name</key>
 	<string>Completion</string>
 	<key>outputCaret</key>

@@ -6,6 +6,9 @@
 	<string>nop</string>
 	<key>command</key>
 	<string>#!/usr/bin/env python
+# encoding: utf-8
+
+"""Go to to definition of word, present menu if ambigous."""
 
 import os
 import sys
@@ -18,15 +21,23 @@ import yoda
 yoda.definitions()</string>
 	<key>input</key>
 	<string>document</string>
+	<key>inputFormat</key>
+	<string>text</string>
 	<key>keyEquivalent</key>
-	<string>@8</string>
+	<string>@2</string>
 	<key>name</key>
 	<string>Go to Definition</string>
+	<key>outputCaret</key>
+	<string>afterOutput</string>
+	<key>outputFormat</key>
+	<string>text</string>
 	<key>outputLocation</key>
 	<string>discard</string>
 	<key>scope</key>
 	<string>source.python</string>
 	<key>uuid</key>
 	<string>75E96F10-63BA-410F-A6DC-01D9AB5862E7</string>
+	<key>version</key>
+	<integer>2</integer>
 </dict>
 </plist>

@@ -6,6 +6,9 @@
 	<string>nop</string>
 	<key>command</key>
 	<string>#!/usr/bin/env python
+# encoding: utf-8
+
+"""Present a menu with all uses of current word."""
 
 import os
 import sys
@@ -21,7 +24,7 @@ yoda.usage()</string>
 	<key>inputFormat</key>
 	<string>text</string>
 	<key>keyEquivalent</key>
-	<string>@9</string>
+	<string>@3</string>
 	<key>name</key>
 	<string>Show usage</string>
 	<key>outputCaret</key>

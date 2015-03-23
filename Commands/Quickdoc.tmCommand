@@ -6,6 +6,10 @@
 	<string>nop</string>
 	<key>command</key>
 	<string>#!/usr/bin/env python
+# encoding: utf-8
+
+"""Present tooltip with documentation for current word."""
+
 
 import os
 import sys
@@ -21,7 +25,7 @@ yoda.quickdoc()</string>
 	<key>inputFormat</key>
 	<string>text</string>
 	<key>keyEquivalent</key>
-	<string>@6</string>
+	<string>@4</string>
 	<key>name</key>
 	<string>Quickdoc</string>
 	<key>outputCaret</key>

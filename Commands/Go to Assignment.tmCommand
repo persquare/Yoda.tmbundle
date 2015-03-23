@@ -2,8 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
 	<key>command</key>
 	<string>#!/usr/bin/env python
+# encoding: utf-8
+
+"""Go to to assignment of word, present menu if ambigous."""
+
 
 import os
 import sys
@@ -16,15 +22,23 @@ import yoda
 yoda.assignments()</string>
 	<key>input</key>
 	<string>document</string>
+	<key>inputFormat</key>
+	<string>text</string>
 	<key>keyEquivalent</key>
-	<string>@7</string>
+	<string>@1</string>
 	<key>name</key>
 	<string>Go to Assignment</string>
+	<key>outputCaret</key>
+	<string>afterOutput</string>
+	<key>outputFormat</key>
+	<string>text</string>
 	<key>outputLocation</key>
 	<string>discard</string>
 	<key>scope</key>
 	<string>source.python</string>
 	<key>uuid</key>
 	<string>7A4C58CE-7352-4547-BC78-7303CA8D14AF</string>
+	<key>version</key>
+	<integer>2</integer>
 </dict>
 </plist>
