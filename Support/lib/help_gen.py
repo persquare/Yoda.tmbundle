@@ -59,7 +59,7 @@ def commandlist(cmd_dir):
         try:
             if pl.get(u'isDisabled', False):
                 continue
-            raw_combo = pl.get(u'keyEquivalent', u'')
+            raw_combo = pl.get(u'keyEquivalent', u'').decode('utf-8')
             name = pl.get(u'name', u'NONAME')
             docstring = extract_docstring(pl.get(u'command', u''))
             commands.append((raw_combo, name, docstring))
