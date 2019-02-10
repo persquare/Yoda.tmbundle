@@ -1,18 +1,28 @@
+#!/usr/bin/env python3
+
 # based on python-jedi.tmbundle/completions.py
 # <https://github.com/lawrenceakka/python-jedi.tmbundle>
 import os
 import sys
 import glob
 import subprocess
+import plistlib
+import functools
+
+import jedi
 
 env = os.environ
-envvars = ['TM_BUNDLE_SUPPORT', 'TM_SUPPORT_PATH']
-sys.path[:0] = [env[v]+b'/lib' for v in envvars if env[v] not in sys.path]
+envvars = ['TM_BUNDLE_SUPPORT']
+sys.path[:0] = [env[v]+u'/lib' for v in envvars if env[v] not in sys.path]
 
-from plistlib import writePlistToString, readPlistFromString
 
-# sys.path.insert(0, support_path + b'/jedi')
-import jedi
+# from plistlib import writePlistToString, readPlistFromString
+def writePlistToString(value):
+    return plistlib.dumps(value)
+
+def readPlistFromString(data):
+    return plistlib.loads(data)
+    
 jedi.settings.case_insensitive_completion = False
 jedi.settings.add_bracket_after_function = True
 
@@ -73,16 +83,17 @@ def _get_line_column():
     return (int(line), int(col)-1)
 
 
-def get_script():
+def get_script(debug=None):
     """ Get the Jedi script object from the source passed on stdin, or none"""
-    source = ''.join(sys.stdin.readlines()) or None
+    source = ''.join(sys.stdin.readlines()) or debug
     script = None
     try:
-        line, col = _get_line_column()
+        line, col = _get_line_column() if not debug else (1, len(debug))
         # encoding = tm_query.query('encoding')
-        path = env('TM_FILE_PATH') if not source else None
+        path = env['TM_FILE_PATH'] if not source else None
         script = jedi.Script(source, line, col, path)
-    except (AttributeError, KeyError):
+    except Exception as e: # AttributeError, KeyError:
+        present_tooltip("{}".format(e))
         pass
     return script
 
@@ -95,7 +106,7 @@ def completion():
         sys.stdout.write(completions[0].complete)
         return
     # Prepare data for popup
-    icons = register_images(env['TM_BUNDLE_SUPPORT'] + b'/icons')
+    icons = register_images(env['TM_BUNDLE_SUPPORT'] + '/icons')
     typed = env.get('TM_CURRENT_WORD', '').lstrip('.')
     suggestions = [{'display':c.name, 'image':c.type if c.type in icons else 'none'} for c in completions]
     return present_popup(suggestions, typed)
@@ -189,15 +200,18 @@ def _goto_description(description):
     # present_tooltip("Jumping to %s:%s" % (file, description.line))
     open_in_editor(file, description.line, description.column)
 
+def _cmp(a, b):
+    return (a > b) - (a < b)
+
 def _usage_cmp(a, b):
-    order = cmp(a.module_name, b.module_name)
+    order = _cmp(a.module_name, b.module_name)
     if order == 0:
-        order = cmp(a.line, b.line)    
+        order = _cmp(a.line, b.line)    
     return order
         
 def _process_usages(us):
     # Sort per file:line
-    us.sort(cmp=_usage_cmp)
+    us.sort(key=functools.cmp_to_key(_usage_cmp))
     # FIXME: Move definition to top? (OTOH that is handled by goto definition)
     options = {}
     menu_items = []
@@ -251,6 +265,7 @@ def assignments():
         _goto_description(options[key])
     
 def quickdoc():
+    """Present tooltip with short docs"""
     script = get_script()
     if script is None:
         return

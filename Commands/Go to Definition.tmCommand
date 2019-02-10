@@ -5,7 +5,7 @@
 	<key>beforeRunningCommand</key>
 	<string>nop</string>
 	<key>command</key>
-	<string>#!/usr/bin/env python
+	<string>#!/usr/bin/env python3
 # encoding: utf-8
 
 """Go to to definition of word, present menu if ambigous."""
@@ -13,8 +13,8 @@
 import os
 import sys
 
-envvars = ['TM_BUNDLE_SUPPORT', 'TM_SUPPORT_PATH']
-sys.path[:0] = [os.environ[v]+b'/lib' for v in envvars if os.environ[v] not in sys.path]
+envvars = ['TM_BUNDLE_SUPPORT']
+sys.path[:0] = [os.environ[v]+'/lib' for v in envvars if os.environ[v] not in sys.path]
 
 import yoda
 
