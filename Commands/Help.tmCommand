@@ -5,62 +5,47 @@
 	<key>beforeRunningCommand</key>
 	<string>nop</string>
 	<key>command</key>
-	<string>#!/usr/bin/env python
+	<string>#!/usr/bin/env python3
 # encoding: utf-8
 
 """Show help for the Yoda bundle."""
 
 import os
 import sys
-import subprocess
-import StringIO
 
-envvars = ['TM_BUNDLE_SUPPORT', 'TM_SUPPORT_PATH']
-sys.path[:0] = [os.environ[v]+'/lib' for v in envvars if os.environ[v] not in sys.path]
-
-import webpreview as wp
-import help_gen
-
-# Get the static part of the documentation
 try:
-    help_file = os.path.join(os.environ['TM_BUNDLE_SUPPORT'], 'help.markdown')
-    with open(help_file, 'r') as f:
-        help_text = f.read()
+    envvars = ['TM_PYTHON_HELPERS_BUNDLE_SUPPORT', 'TM_BUNDLE_SUPPORT']
+    sys.path[:0] = [os.path.join(os.environ[v], 'lib') for v in envvars]
 except:
-    help_text = """
+    errmsg = """
+    The PythonHelpers bundle required, see&lt;br/&gt;
+    &lt;a href=https://github.com/persquare/PythonHelpers.tmbundle&gt;
+    github.com/persquare/PythonHelpers.tmbundle
+    &lt;/a&gt;
+    """
+    sys.stderr.write(errmsg)
+    sys.exit(205)
+    
+from TextMate import help_gen
+from TextMate import webpreview as wp
+
+# Static part of the documentation
+intro = """
 # About Yoda
 Yoda builds on [Jedi][1] to provide better completion and navigation when working with Python code.
 [1]: http://jedi.jedidjah.ch/en/latest/index.html
-
+"""
+body = """
 # Requirements
 * [Jedi][1] v0.9.0 or later
-* TextMate's shell supprt `mate`-command is installed, see TextMate -&gt; Preferences… -&gt; Terminal
+* TextMate's shell support `mate`-command is installed, see TextMate -&gt; Preferences… -&gt; Terminal
 """
         
+print(wp.html_header('Yoda Help', 'Yoda'))
 
-# Get the auto-generated part of the documentation
-cmd_dir = os.path.join(os.environ['TM_BUNDLE_SUPPORT'], '../Commands')
-f = StringIO.StringIO()
-save_stdout = sys.stdout
-sys.stdout = f
-help_gen.generate_keyboard_shortcut_docs(cmd_dir)
-sys.stdout = save_stdout
-shortcut_docs = f.getvalue()
-f.close()
-     
+print(help_gen.help_for_bundle(intro, body))
 
-print wp.html_header(u'Yoda Bundle Help', 'Yoda')
-
-# Let markdown_to_html.rb do the heavy lifting
-md2help = os.path.join(os.environ['TM_SUPPORT_PATH'], 'lib/markdown_to_help.rb')     
-p = subprocess.Popen(md2help, stdin=subprocess.PIPE)
-p.stdin.write(u'# Quickstart (keyboard shortcuts)'.encode('utf-8'))
-p.stdin.write(shortcut_docs)
-p.stdin.write(help_text)
-p.stdin.close() # signal end of file
- 
-print wp.html_footer()
- 
+print(wp.html_footer())
 
 </string>
 	<key>input</key>

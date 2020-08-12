@@ -12,5 +12,14 @@
 	<string>Yoda</string>
 	<key>uuid</key>
 	<string>0DF59819-B3FD-4FBB-B275-0EE903D7FA5A</string>
+    <key>require</key>
+    <array>        
+        <dict>
+            <key>name</key>
+            <string>Python Helpers</string>
+            <key>uuid</key>
+            <string>35499A98-BE20-439E-B3FA-714F56392768</string>
+        </dict>
+    </array>
 </dict>
 </plist>
