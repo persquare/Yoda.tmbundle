@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
+	<key>command</key>
+	<string>#!/usr/bin/env python3
+
+import sys
+import os
+import pydoc
+from subprocess import Popen, PIPE
+
+import jedi
+from pdoc import html_helpers
+
+try:
+    envvars = ['TM_PYTHON_HELPERS_BUNDLE_SUPPORT', 'TM_BUNDLE_SUPPORT']
+    sys.path[:0] = [os.path.join(os.environ[v], 'lib') for v in envvars]
+except:
+    errmsg = """
+    The PythonHelpers bundle required, see&lt;br/&gt;
+    &lt;a href=https://github.com/persquare/PythonHelpers.tmbundle&gt;
+    github.com/persquare/PythonHelpers.tmbundle
+    &lt;/a&gt;
+    """
+    sys.stderr.write(errmsg)
+    sys.exit(205)
+    
+import TextMate as tm
+from TextMate import webpreview as wp
+
+
+def fix_leading_indent(docs):
+    lines = []
+    for line in docs.split('\n'):
+        if line.startswith('   '):
+            line = ' '+line
+        lines.append(line)
+    return "\n".join(lines)
+    
+    
+
+filepath = os.environ['TM_FILEPATH']
+with open(filepath, 'r') as fd:
+    source = fd.read()
+script = jedi.Script(source, path=filepath)
+x = script.help(line=int(os.environ['TM_LINE_NUMBER']), column=int(os.environ['TM_COLUMN_NUMBER']))
+# print(type(x[0]), x[0])
+docs = x[0].docstring()
+# print(docs)
+# print(html_helpers.to_html(docs))
+
+# c = script.complete(line=12, column=26)[0]
+# print(c)
+# print(c.complete)
+# print(c.name_with_symbols)
+# print(c.type)
+# print(c.docstring())
+# print("")
+# print(html_helpers.to_html(c.docstring()))
+
+# d = pydoc.HTMLDoc()
+# docs = d.markup(docs)
+#print(docs)
+# docs = fix_leading_indent(docs)
+# docs = html_helpers.to_markdown(docs, docformat='google')
+# # Let markdown_to_html.rb do the heavy lifting
+# markdown = os.environ.get('TM_MARKDOWN_XXX', f"{os.environ['TM_SUPPORT_PATH']}/bin/Markdown.pl")
+# p = Popen(markdown, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+# helptext, err = p.communicate(input=docs.encode('utf-8'))
+#
+# body = helptext or err
+
+# body = html_helpers.to_markdown(docs)
+
+print(wp.html_header('TextTasks Help', 'TextTasks'))
+print('&lt;pre&gt;')
+print(docs)
+print('&lt;/pre&gt;')
+# print('&lt;hr/&gt;')
+# print(body)
+print(wp.html_footer())
+
+</string>
+	<key>input</key>
+	<string>none</string>
+	<key>inputFormat</key>
+	<string>text</string>
+	<key>keyEquivalent</key>
+	<string>@d</string>
+	<key>name</key>
+	<string>Doc</string>
+	<key>outputCaret</key>
+	<string>afterOutput</string>
+	<key>outputFormat</key>
+	<string>html</string>
+	<key>outputLocation</key>
+	<string>newWindow</string>
+	<key>scope</key>
+	<string>source.python</string>
+	<key>uuid</key>
+	<string>C4DE87B3-34C8-4724-8EE0-713B7978052B</string>
+	<key>version</key>
+	<integer>2</integer>
+</dict>
+</plist>
