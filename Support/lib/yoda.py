@@ -100,6 +100,10 @@ def get_script(debug=None):
         pass
     return script
 
+def complete():
+    script = get_script()
+    return script.completions()
+
 def completion():
     script = get_script()
     completions = script.completions()
@@ -283,3 +287,6 @@ def quickdoc():
     if definitions:
         definition = definitions[0]
         dialog.present_tooltip(definition.docstring())
+
+if __name__ == '__main__':
+    print(sys.argv[0])
